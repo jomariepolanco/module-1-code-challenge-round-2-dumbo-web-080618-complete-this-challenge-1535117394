@@ -1,11 +1,12 @@
 class Viewer
-  attr_accessor :username
+
+  attr_reader :name 
 
   @@all = []
 
-  def initialize(username)
-    @username = username
-    self.class.all << self
+  def initialize(name)
+    @name = name 
+    @@all << self
   end
 
   def self.all
@@ -13,35 +14,29 @@ class Viewer
   end
 
   def queue_items
-    QueueItem.all.select do |queue| #queue instance
-      queue.viewer == self
-    end
+    QueueItem.all.select {|item| item.viewer == self}
   end
 
   def queue_movies
-    queue_items.map do |queue_items| #queue instance > movies
-      queue_items.movie
-    end
-end
+    queue_items.map {|item| item.movie}
+  end
 
   def add_movie_to_queue(movie)
-    QueueItem.new(movie, self)
+     queue_movies.include? movie == false 
+     QueueItem.new(self, movie) 
   end
 
   def rate_movie(movie, rating)
-    if queue_items.map do |queue|
-      queue.movie == movie
-      queue.rating = rating
+    if queue_movies.include? movie
+      queue_items.find do |item| 
+        item.movie == self
+        item.rating = rating 
       end
     else
-    QueueItem.new(movie, self, rating)
+      QueueItem.new(self, movie, rating)
+    end
   end
-end
 
 end
 
 
-#   + given a movie and a rating (a number between 1 and 5), this method should assign the
-#   rating to the viewer's `QueueItem` for that movie. If the movie is not already in the viewer's
-#   queue, this method should add a new `QueueItem` with the viewer, movie, and rating.
-#   If the movie is already in the queue, this method should not create a new `QueueItem`.

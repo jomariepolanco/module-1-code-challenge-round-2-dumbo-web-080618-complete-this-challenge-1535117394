@@ -1,43 +1,31 @@
 class Movie
-  attr_accessor :title
 
+  attr_accessor :name 
+  
   @@all = []
 
-  def initialize(title)
-    @title = title
-    self.class.all << self
+  def initialize(name)
+    @name = name
+    @@all << self 
   end
 
-  def self.all
+  def self.all 
     @@all
   end
 
   def queue_items
-    QueueItem.all.select do |queue|
-      queue.movie == self
-    end
+    QueueItem.all.select {|item| item.movie == self}
   end
 
   def viewers
-    queue_items.map do |queue|
-      queue.viewers
-    end
+    queue_items.map {|item| item.viewer == self}
   end
 
   def average_rating
-    rating = 0
-    all_queue = queue_items.map do |queue|
-      rating  += queue.rating
-  end
-    rating /= all_queue.length
+    queue_items.sum {|item| item.rating} / queue_items.count
   end
 
   def self.highest_rated
-      queue_item = QueueItem.all.map do |queue|
-                        queue
-    end
-      queue_item.sort_by do |queue| queue.rating
-    end.last
-end
-
+    self.all.max_by {|movie| movie.average_rating}
+  end
 end
